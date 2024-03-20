@@ -1,16 +1,21 @@
-# This is a sample Python script.
+def intro():
+    print("--------------------------")
+    print("game name here :)")
+    print("--------------------------")
+    print()
+    print("How to play:")
+    print("Use W,A,S,D to move around the dungeon.")
+    print("Use E to collect items.")
+    print()
+    print("Please enter your name.")
+    player_name = input(":")
+    print("Welcome", player_name, ", adventure awaits")
+    dungeon_enterance()
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+
+def dungeon_enterance():
+    print(":)")
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+intro()
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
