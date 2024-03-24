@@ -1,5 +1,6 @@
 player_name = 0
 inventory = []
+import random
 
 def intro():
     print("--------------------------------")
@@ -84,9 +85,9 @@ def cell_area_1():
         elif user_input == "S":
             area_2()
         elif user_input == "S" or user_input == "D":
-            print("You can't go that way".)
+            print("You can't go that way.")
         else:
-            print("Input error".)
+            print("Input error.")
 
 def cell_area_2():
     print("")
@@ -96,24 +97,51 @@ def cell_area_2():
     print("")
     while True:
         print("Further down the cell block you find a skeleton.")
-        print("It appears to have a deck of cards.")
+        print("It appears to have a deck of cards...")
         print("As you get closer, the skeleton springs to life!")
         print("Walk all the way up to it to talk.")
         user_input = input(":").upper()
         if user_input == "W":
-            skeleton_encounter()
+            print("Hello traveler...")
+            print("Would you care for a game of Blackjack? I can make it worth your while...")
+            while True:
+                print("I'm a skeleton so a yes or no answer is all I can accept.")
+                user_input = input(":").upper()
+                if user_input == "YES":
+                    blackjack()
+                elif user_input == "NO":
+                    print("Oh well.")
+                    print("I suppose you best get moving then.")
+                    print("*The skeleton pushes you into the next room.*")
+                    cell_area_3()
+                else:
+                    print("Input error.")
         elif user_input == "S":
             cell_area_1()
         elif user_input == "S" or user_input == "D":
             print("You can't go that way.")
         else:
             print("Input error.")
-    print("")
-def skeleton_encounter():
-    print("Hello traveler...")
-    print("Would you care for a game of Blackjack? I can make it worth your while...")
+
+def blackjack():
+    hand=[]
+    values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
+    suits = ["Hearts", "Diamonds", "Spades", "Clubs"]
+    deck = [[v, "of", s] for s in suits for v in values]
+    random.shuffle(deck)
+    print("You were dealt", deck[0], "and", deck[1])
+    hand.append(deck[0])
+    hand.append(deck[1])
+    for i in range(1,10):
+        deck.remove(deck[0])
+    print("The skeleton  has a", deck[0])
+
 def swamp_area_1():
     print("swamp")
 
-intro()
+def cell_area_3():
+    print("celly 3")
+
+
+blackjack()
 
