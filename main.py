@@ -124,17 +124,38 @@ def cell_area_2():
             print("Input error.")
 
 def blackjack():
-    hand=[]
-    values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
+    hand = []
+    values = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
     suits = ["Hearts", "Diamonds", "Spades", "Clubs"]
     deck = [[v, "of", s] for s in suits for v in values]
     random.shuffle(deck)
     print("You were dealt", deck[0], "and", deck[1])
     hand.append(deck[0])
     hand.append(deck[1])
-    for i in range(1,10):
+    total1 = values.index(hand[0][0]) + 1
+    total2 = values.index(hand[1][0]) + 1
+    if total1 > 10:
+        total1 = 10
+    if total2 > 10:
+        total2 = 10
+    total = total1 + total2
+    print(total)
+    for i in range(1, 3):
         deck.remove(deck[0])
     print("The skeleton  has a", deck[0])
+    deck.remove(deck[0])
+    while total < 21:
+        print("Press 1 to hit or 2 to stand.")
+        user_input = int(input(":"))
+        if user_input == 1:
+            hand.append(deck[0])
+            deck.remove(deck[0])
+            print("you were dealt a", (deck[0]))
+            total3 = values.index(hand[2][0]) + 1
+            if total3 > 10:
+                total3 = 10
+            total += total3
+            print(total)
 
 def swamp_area_1():
     print("swamp")
