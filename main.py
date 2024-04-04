@@ -78,7 +78,7 @@ def cell_area_1():
     print("--------------------------------")
     print("")
     while True:
-        print("You head to the right, towards what appears to be an old cell block.")
+        print("You head to the left, towards what appears to be an old cell block.")
         print("You can only travel forward or backwards from this point.")
         print("Straight ahead is more cells, the end is still shrouded in darkness.")
         user_input = input(":").upper()
@@ -126,6 +126,11 @@ def cell_area_2():
             print("Input error.")
 
 def blackjack():
+    print("")
+    print("--------------------------------")
+    print("------Skeleton's BlackJack------")
+    print("--------------------------------")
+    print("")
     ace_check = 0
     dealer_ace_check = 0
     dealer_hand = []
@@ -150,67 +155,82 @@ def blackjack():
     print("The skeleton's total is:", dealer_total, "\n")
     deck.remove(deck[0])
 
-    while total < 21:
-        print("Press 1 to hit or 2 to stand.")
-        user_input = int(input(":"))
-        if user_input == 1:
-            print("You were dealt a", " ".join(map(str, deck[0])))
-            hand.append(deck[0])
-            deck.remove(deck[0])
-            total += blackjack_value(hand[n])
-            print("Your total is:", total)
-            if total > 21:
-                for i in range(len(hand)):
-                    if "Ace" in hand[i]:
-                        ace_check += 1
-                        hand.remove(hand.index(["Ace"]))
-                if ace_check >= 1:
-                    print("Your ace turns from an 11 to a 1")
-                    ace_check -= 1
-                    total -= 10
-                    print("Your total is:", total)
-                else:
-                    print("You bust and lose!")
+    while total < 21 and dealer_total < 21:
+        try:
+            print("Press 1 to hit or 2 to stand.")
+            user_input = int(input(":"))
+            if user_input == 1:
+                print("You were dealt a", " ".join(map(str, deck[0])))
+                hand.append(deck[0])
+                deck.remove(deck[0])
+                total += blackjack_value(hand[n])
+                print("Your total is:", total)
+                if total > 21:
+                    for i in range(len(hand)-1):
+                        if "Ace" in hand[i]:
+                            print(hand[i])
+                            hand.pop(i)
+                            ace_check += 1
+                            print(ace_check)
+                    if ace_check >= 1:
+                        print("Your ace turns from an 11 to a 1")
+                        ace_check -= 1
+                        total -= 10
+                        print("Your total is:", total)
+                    else:
+                        print("You bust and lose!")
+                        blackjack_loss()
+                if total == 21:
+                    print("You win!")
+                    blackjack_win()
 
-        if user_input == 2:
-            while dealer_total < 17:
-                if len(dealer_hand) > 1:
-                    dealer_hand.append(deck[0])
-                    print("The skeleton draws a", " ".join(map(str, deck[0])))
-                    deck.remove(deck[0])
-                    dealer_total += dealer_blackjack_value(dealer_hand[dn])
-                    print("The skeleton's total is:", dealer_total, "\n")
+            if user_input == 2:
+                while dealer_total < 17:
+                    if len(dealer_hand) > 1:
+                        dealer_hand.append(deck[0])
+                        print("The skeleton draws a", " ".join(map(str, deck[0])))
+                        deck.remove(deck[0])
+                        dealer_total += dealer_blackjack_value(dealer_hand[dn])
+                        print("The skeleton's total is:", dealer_total, "\n")
+                    else:
+                        print("The skeleton flips his card to reveal a", " ".join(map(str, deck[0])))
+                        dealer_hand.append(deck[0])
+                        dealer_total += dealer_blackjack_value(dealer_hand[1])
+                        print("The skeleton's total is:", dealer_total, "\n")
+                        deck.remove(deck[0])
 
+                if 21 >= dealer_total > total:
+                    print("The skeleton must stand when their total is greater than 16")
+                    print("The skeleton's hand is closer to 21, they win!")
+                    blackjack_loss()
+                elif dealer_total > 21:
+                    for i in range(len(dealer_hand)-1):
+                        if "Ace" in dealer_hand[i]:
+                            dealer_ace_check += 1
+                            dealer_hand.pop(i)
+                    if dealer_ace_check >= 1:
+                        print("The skeleton's ace turns from an 11 to a 1")
+                        dealer_ace_check -= 1
+                        total -= 10
+                        print("The skeleton's total is:", total)
+                    else:
+                        print("The skeleton busts! You win!")
+                        blackjack_win()
                 else:
-                    print("The skeleton flips his card to reveal a", " ".join(map(str, deck[0])))
-                    dealer_hand.append(deck[0])
-                    dealer_total += dealer_blackjack_value(dealer_hand[1])
-                    print("The skeleton's total is:", dealer_total, "\n")
-                    deck.remove(deck[0])
-
-            if  21 >= dealer_total > total:
-                print("The skeleton must stand when their total is > 17")
-                print("The skeleton's hand is closer to 21, they win!")
-            elif dealer_total > 21:
-                for i in range(len(dealer_hand)):
-                    if "Ace" in dealer_hand[i]:
-                        dealer_ace_check += 1
-                if dealer_ace_check >= 1:
-                    print("Your ace turns from an 11 to a 1")
-                    dealer_ace_check -= 1
-                    total -= 10
-                    print("The skeleton's total is:", total)
-                else:
-                    print("The Skeleton busts! You win!")
+                    print("The skeleton must stand when their total is greater than 16")
+                    print("Your hand is closer to 21, you win!")
+                    blackjack_win()
             else:
-                print("Your hand is closer to 21, you win!")
+                print("Please enter either 1 or 2")
+
+        except ValueError:
+            print("Please enter a number")
 
 def blackjack_value(values):
     global ace_check
     if values[0] in ["Jack", "Queen", "King"]:
         return 10
     elif values[0] in ["Ace"]:
-        ace_check += 1
         return 11
     else:
         return int(values[0])
@@ -219,7 +239,6 @@ def dealer_blackjack_value(values):
     if values[0] in ["Jack", "Queen", "King"]:
         return 10
     elif values[0] in ["Ace"]:
-        dealer_ace_check += 1
         return 11
     else:
         return int(values[0])
@@ -230,7 +249,24 @@ def swamp_area_1():
 def cell_area_3():
     print("celly 3")
 
-while True:
-    print("")
-    blackjack()
+def blackjack_loss():
+    print("\nAhaha! You lose!")
+    print("Want to go again?")
+    while True:
+        print("I'm a skeleton so a yes or no answer is all I can accept.")
+        user_input = input(":").upper()
+        if user_input == "YES":
+            blackjack()
+        elif user_input == "NO":
+            print("Oh well.")
+            print("I suppose you best get moving then.")
+            print("*The skeleton pushes you into the next room.*")
+            cell_area_3()
+        else:
+            print("Input error.")
 
+def blackjack_win():
+    print("\nCongratulations on beating me")
+    print("As a reward, I'll give you my key")
+
+blackjack()
