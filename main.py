@@ -1,5 +1,6 @@
 import random
-
+slime_health = 50
+player_health = 50
 def blackjack():
     print("")
     print("--------------------------------")
@@ -144,7 +145,7 @@ def blackjack_want_to_play():
             print("Oh well.")
             print("I suppose you best get moving then.")
             print("*The skeleton pushes you into the next room.*")
-            explore_area(areas["cell_area_3_info"])
+            explore_area(areas["cell_area_4_info"])
         else:
             print("Please enter yes or no.")
 
@@ -154,14 +155,27 @@ def blackjack_win():
     print("As a reward, I'll give you my key")
     print("*You take the key and head onwards*")
     inventory.append("Key")
-    explore_area(areas["cell_area_3_info"])
+    explore_area(areas["cell_area_4_info"])
 
 
 def knife_pickup():
-    print("You can now defend yourself.")
-    print("You look up to see...")
-    inventory.append("rusty knife.")
-    explore_area(areas["area_2_info"])
+    if len(inventory) < 1:
+        print("The glistening was a rusty knife!")
+        print("E: Pickup the knife")
+        while True:
+            userinput = input(":").upper()
+            if userinput == "E":
+                print("You can now defend yourself.")
+                print("You look up to see...")
+                inventory.append("rusty knife.")
+                explore_area(areas["area_2_info"])
+            else:
+                print("Input error")
+    else:
+        print("There is some shining rust left over from the knife")
+        print("You look up to see...")
+        explore_area(areas["area_2_info"])
+
 
 
 def lever():
@@ -169,15 +183,50 @@ def lever():
     print("A slime falls from a trapdoor in the ceiling!")
     explore_area(areas["slime_fight_info"])
 
+def slime_stab():
+    print("You lunge forward and slash the slime!")
+    damage = random.randint(10, 15)
+    global slime_health
+    slime_health -= damage
+    print("You did", damage, "damage")
+    print("The slime now has", slime_health, "health")
+    slime_attack = random.randint(10, 20)
+    slime_attack_chance = random.randint(1, 2)
+    if slime_attack_chance == 2:
+        global player_health
+        player_health -= slime_attack
+        print("The slime lunges forward!")
+        print("The slime does", slime_attack, "damage")
+        print("you now have", player_health, "health")
+    else:
+        print("The slime is loafing around")
+    print("\nE:", "Stab the slime")
+    print("Q", "Block the slime's next attack")
+
+def slime_block():
+    print("You raise your knife to defend against an attack")
+    slime_attack_chance = random.randint(1, 2)
+    if slime_attack_chance == 2:
+        print("The slime tried to attack but was blocked!")
+    else:
+        print("The slime is loafing around")
+    print("\nE:", "Stab the slime")
+    print("Q", "Block the slime's attack")
+
+def blackjack_rules():
+    print("The aim of the game is to get a score of 21 or as close to it as possible without going over.\nFace cards (Jack, Queen, King) are worth 10 points.\nNumber cards are worth their face value.\nAn Ace can be worth either 1 or 11 points, whichever is more advantageous.\nAfter receiving your initial two cards, you can choose to 'hit' to receive another card or 'stand' to keep your current total.\nIf you go over 21, you 'bust' and lose the round.\nIf you get blackjack (21 with your first two cards), you win instantly.\nThe dealer starts with 1 card shown to you, and another card hidden.\nThe dealer will continue to draw cards until their total is greater than 16, where they will stand.\nIf neither you nor the dealer get blackjack or bust, the closer hand to 21 wins.")
+    explore_area(areas["cell_area_3_info"])
+
 areas = {
-    "intro_info": ["The Dungeon", "How to play:\nUse W,A,S,D to move around\nUse E to interact with the world", [('W', "Start the adventure", "area_1_info")]],
-    "area_1_info": ["The Dungeon's Entrance", "The dungeon is dark and gloomy, you look around but can't see much. But you can see something shining in the distance.", [('W', "Go forward", "knife_area_info"), ('A', "Go left", None), ('S', "Go back", None),('D', "Go right", None)]],
-    "knife_area_info": ["Knife Pickup", "The glistening was a knife!", [('E', "Collect the knife", knife_pickup)]],
-    "area_2_info": ["The Murky Crossroads", "After collecting the knife you approach a 3-way split in the corridor.\nStraight ahead is a large set of double doors with 2 keyholes.\nTo the left is what appears to be an abandoned cell block.\nTo the right is a sewer system.", [('W', "Go straight", None), ('A', "Go left", "cell_area_1_info"), ('S', "Go back", "area_1_info"),('D', "Go right", None)]],
+    "intro_info": ["The Dungeon", "How to play:\nUse W,A,S,D to move around\nUse E and Q to interact with the world when prompoted", [('W', "Start the adventure", "area_1_info")]],
+    "area_1_info": ["The Dungeon's Entrance", "The dungeon is dark and gloomy, you look around but can't see much. But you can see something shining in the distance.", [('W', "Go forward", knife_pickup), ('A', "Go left", None), ('S', "Go back", None),('D', "Go right", None)]],
+    "area_2_info": ["The Murky Crossroads", "You approach a 3-way split in the corridor.\nStraight ahead is a large set of double doors with 2 keyholes.\nTo the left is what appears to be an abandoned cell block.\nTo the right is a sewer system.", [('W', "Go straight", None), ('A', "Go left", "cell_area_1_info"), ('S', "Go back", "area_1_info"),('D', "Go right", None)]],
     "cell_area_1_info": ["The Abandoned Cell block", "You head to the left, towards what appears to be an old cell block.\nThe corridoor is narrow, so you can only go fordard or back.", [('W', "Go forward", "cell_area_2_info"), ('S', "Go back", "area_2_info"),('A', "Go left", None), ('D', "Go right", None)]],
-    "cell_area_2_info": ["The Strange Skeleton", "Further down the cell block you find a skeleton. It appears to have a deck of cards...\nThe corridoor is narrow, so you can only go fordard or back.", [('W', "Talk to the skeleton", blackjack), ('S', "Go back", "cell_area_1_info"),('A', "Go left", None), ('D', "Go right", None)]],
-    "cell_area_3_info": ["The Suspicious Room", "After leaving the skeleton behind, you enter a large and spacious room.\nThere seems to be a suspicious lever in the middle.\nTo the left is a cracked doorway that leads to a pond.\nTo the right is a locked door, perhaps the lever opens it?", [('W', "Walk up to the leaver", lever), ('S', "Go back", "cell_area_1_info"), ('A', "Go left", "cell_area_4_info"), ('D', "Go right", "cell_area_5_info")]],
-    "slime_fight_info": ["Slime Battle!", "Oh no! This slime is going to kill you! Good thing you brought that knife...",[("E", "Stab the slime", slime_stab)]]
+    "cell_area_2_info": ["The Skeleton's Cell", "Further down the cell block you find a skeleton. It appears to have a deck of cards...\nThe corridoor is narrow, so you can only go fordard or back.", [('W', "Talk to the skeleton", "cell_area_3_info"), ('S', "Go back", "cell_area_1_info"),('A', "Go left", None), ('D', "Go right", None)]],
+    "cell_area_3_info": ["The Skeleton", "Hello traveller, would you care for a game of blackjack?", [('E', "Play a game of blackjack", blackjack), ('Q', "Learn the rules of blackjack", blackjack_rules), ('W', "Walk past the skeleton", "cell_area_4_info"), ('A', "Go left", None), ('D', "Go right", None), ('S', "Go back", None)]],
+    "cell_area_4_info": ["A Suspicious Room", "After leaving the skeleton behind, you enter a large and spacious room.\nThere seems to be a suspicious lever in the middle.\nTo the left is a cracked doorway that leads to a pond.\nTo the right is a locked door, perhaps the lever opens it?", [('W', "Walk up to the leaver", lever), ('S', "Go back", "cell_area_3_info"), ('A', "Go left", "cell_area_4_info"), ('D', "Go right", "cell_area_5_info")]],
+    "slime_fight_info": ["Slime Battle!", "Oh no! This slime is going to kill you! Good thing you brought that knife...", [('E', "Stab the slime", slime_stab), ('Q', "Block the slime's incoming attack", slime_block)]]
+
 }
 
 inventory = []
