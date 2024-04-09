@@ -66,7 +66,6 @@ def blackjack():
             print("Your total is 21, you win!")
             blackjack_win()
 
-
         while total < 21 and dealer_total < 21:
             print("Press 1 to hit or 2 to stand.")
             try:
@@ -189,7 +188,7 @@ def blackjack_want_to_play():
 def blackjack_win():
     global player_gold
     print("\nCongratulations on beating me")
-    player_gold += bet_amount *2
+    player_gold += bet_amount * 2
     print(f"You were given {bet_amount*2} gold for winning!")
     print(f"Current gold amount: {player_gold}")
     print("\nWould you like to play again?")
@@ -197,28 +196,36 @@ def blackjack_win():
 
 
 def knife_pickup():
-    if len(inventory) < 1:
-        print("The glistening was a rusty knife!")
-        print("E: Pickup the knife")
+    if "rusty knife" not in inventory:
+        print("\nThe glistening was a rusty knife!")
+        print("\nAvailable options.\nE: Pickup the knife.\nW: Leave the knife")
         while True:
             userinput = input(":").upper()
             if userinput == "E":
+                print("You picked up the knife!")
                 print("You can now defend yourself.")
                 print("You look up to see...")
-                inventory.append("rusty knife.")
+                inventory.append("rusty knife")
+                explore_area(areas["area_2_info"])
+            elif userinput == "W":
+                print("You leave the knife behind.")
+                print("You look up to see...")
                 explore_area(areas["area_2_info"])
             else:
                 print("Input error")
     else:
-        print("There is some shining rust left over from the knife")
-        print("You look up to see...")
         explore_area(areas["area_2_info"])
 
 
 def lever():
-    print("You pull on the leaver...")
+    print("You pull on the lever...")
     print("A slime falls from a trapdoor in the ceiling!")
-    explore_area(areas["slime_fight_info"])
+    if "rusty knife" in inventory:
+        explore_area(areas["slime_fight_info"])
+    else:
+        print("Without a knife to defend yourself, the slime knocks you out!")
+        print("As you fade out of consciousness you hear it jump back into the ceiling")
+        explore_area(areas["cell_area_4a_info"])
 
 
 def slime_stab():
@@ -251,7 +258,8 @@ def slime_stab():
             print("You now have 0 health."
                   "\nThe slime has defeated you!"
                   "\nAs you fade out of consciousness you hear it jump back into the ceiling")
-            explore_area(areas["cell_area_4b_info"])
+            slime_fight = 0
+            explore_area(areas["cell_area_4a_info"])
         else:
             print("You now have", player_health, "health.")
     else:
@@ -275,15 +283,17 @@ def slime_block():
 
 def blackjack_rules():
     print("The aim of the game is to get a score of 21 or as close to it as possible without going over."
-          "\nFace cards (Jack, Queen, King) are worth 10 points."
-          "\nNumber cards are worth their face value."
-          "\nAn Ace can be worth either 1 or 11 points, whichever is more advantageous."
-          "\nAfter receiving your initial two cards, you can choose to 'hit' to receive another card or 'stand' to keep your current total."
-          "\nIf you go over 21, you 'bust' and lose the round."
-          "\nIf you get blackjack (21 with your first two cards), you win instantly."
-          "\nThe dealer starts with 1 card shown to you, and another card hidden."
-          "\nThe dealer will continue to draw cards until their total is greater than 16, where they will stand."
-          "\nIf neither you nor the dealer get blackjack or bust, the closer hand to 21 wins.")
+    "\nYou can bet as much money as you like, and if you win, you get twice what you bet back!"
+    "\nFace cards (Jack, Queen, King) are worth 10 points."
+    "\nNumber cards are worth their face value."
+    "\nAn Ace can be worth either 1 or 11 points, whichever is more advantageous."
+    "\nAfter receiving your initial two cards, you can choose to 'hit' to receive another card or 'stand' to keep your current total."
+    "\nIf you go over 21, you 'bust' and lose the round."
+    "\nIf you get blackjack (21 with your first two cards), you win instantly."
+    "\nThe dealer starts with 1 card shown to you, and another card hidden."
+    "\nThe dealer will continue to draw cards until their total is greater than 16, where they will stand."
+    "\nIf neither you nor the dealer get blackjack or bust, the closer hand to 21 wins.")
+    "\nIf you and the dealer tie, your bet is returned."
 
     explore_area(areas["cell_area_3_info"])
 
@@ -299,7 +309,7 @@ def buy_key():
     global player_gold
     if "key_1" not in inventory:
         if player_gold >= 1000:
-            inventory.append("key_1")
+            inventory.append("key_2")
             player_gold -= 1000
             print("You bought the key! Is there anything else you would like to do?")
             print(f"Current gold: {player_gold}")
@@ -368,35 +378,52 @@ def sell_fish():
         print("You don't have any fish to sell. Is there anything else you would like to do?")
 
 
-def fishing_game():
+def fishing_game(item):
     if "fishing_rod" in inventory:
         print("You cast your line into the pond...")
-        catch = random.choice(["fish", "boot", "seaweed", "old tin can"])
-        if catch == "fish":
-            print("Congratulations! You caught a fish!")
-            inventory.append("fish")
-            print("\nAvailable options:\nQ: Go fishing\nS: Go back")
-        elif catch != "fish":
-            print(f"You caught a {catch}! Unlucky.. maybe the next one will be a fish?")
-            print("\nAvailable options:\nQ: Go fishing\nS: Go back")
+        if "key" in inventory or item == "fish":
+            catch = random.choice(["fish", "boot", "seaweed", "old tin can"])
+        else:
+            catch = random.choice([item, "boot", "seaweed", "old tin can"])
+        if catch == item:
+            print(f"Congratulations! You caught a {item}!")
+            inventory.append(item)
+            print("\nAvailable options:\nQ: Go fishing\nS: Exit the pond")
+        else:
+            print(f"You caught a {catch}! Unlucky.. maybe the next one will be something more valuable?")
+            print("\nAvailable options:\nQ: Go fishing\nS: Exit the pond")
     else:
-        print("You do not have a fishing rod, perhaps the merchant sells one?")
+        print("You do not have a fishing rod, perhaps a merchant might sell one?")
+        print("\nAvailable options:\nQ: Go fishing\nS: Exit the pond")
 
+
+def key_check():
+    if "key_2" and "key" in inventory:
+        print("You open the doors and walk up the steps to freedom")
+        print("")
+        print("---------------------------------")
+        print("-------------The End-------------")
+        print("---------------------------------")
+        while True:
+            input("")
+    else:
+        print("The door is locked, seems like you need two keys to open it!")
 
 areas = {
     "intro_info": ["The Dungeon", "How to play:\nUse W,A,S,D to move around\nUse E and Q to interact with the world when prompted", [('W', "Start the adventure", "area_1_info")]],
-    "area_1_info": ["The Dungeon's Entrance", "The dungeon is dark and gloomy, you look around but can't see much. But you can see something shining in the distance.\nYou can only move forward, for fear of the unknown all around you.", [('W', "Go forward", knife_pickup), ('A', "Go left", None), ('S', "Go back", None),('D', "Go right", None)]],
-    "area_2_info": ["The Murky Crossroads", "You approach a 3-way split in the corridor.\nStraight ahead is a large set of double doors with 2 keyholes.\nTo the left is what appears to be an abandoned cell block.\nTo the right is a sewer system.", [('W', "Go straight", None), ('A', "Go left", "cell_area_1_info"), ('S', "Go back", "area_1_info"),('D', "Go right", None)]],
-    "cell_area_1_info": ["The Abandoned Cell block", "You head to the left, towards what appears to be an old cell block.\nThe corridor is narrow, so you can only go forward or back.", [('W', "Go forward", "cell_area_2_info"), ('S', "Go back", "area_2_info"),('A', "Go left", None), ('D', "Go right", None)]],
-    "cell_area_2_info": ["The Skeleton's Cell", "Further down the cell block you find a skeleton. It appears to have a deck of cards...\nThe corridor is narrow, so you can only go forward or back.", [('W', "Talk to the skeleton", "cell_area_3_info"), ('S', "Go back", "cell_area_1_info"),('A', "Go left", None), ('D', "Go right", None)]],
-    "cell_area_3_info": ["The Skeleton", "Hello traveller, would you care for a game of blackjack?", [('E', "Play a game of blackjack", blackjack), ('Q', "Learn the rules of blackjack", blackjack_rules), ('W', "Walk past the skeleton", cell_area_4_a_or_b), ('A', "Go left", None), ('D', "Go right", None), ('S', "Go back", "cell_area_2_info")]],
-    "cell_area_4a_info": ["A Suspicious Room", "After leaving the skeleton behind, you enter a large and spacious room.\nThere seems to be a suspicious lever in the middle.\nTo the left locked door, perhaps the lever opens is?.\nTo the right is a locked door, perhaps the lever opens it?", [('W', "Walk up to the leaver", lever), ('S', "Go back", "cell_area_3_info"), ('A', "Go left", None), ('D', "Go right", None)]],
+    "area_1_info": ["The Dungeon's Entrance", "The dungeon is dark and gloomy, you look around but can't see much. But you can see something shining in the distance.\nYou can only move forward, for fear of the unknown all around you.", [('W', "Go forward towards the glistening", knife_pickup), ('A', "Go left into the darkness", None), ('S', "Go back into the darkness", None), ('D', "Go right into the darkness", None)]],
+    "area_2_info": ["The Murky Crossroads", "You approach a 3-way split in the corridor.\nStraight ahead is a large set of double doors with 2 keyholes.\nTo the left is what appears to be an abandoned cell block.\nTo the right is a sewer system.", [('W', "Go straight towards the door", key_check), ('A', "Go left towards the cells", "cell_area_1_info"), ('S', "Go back the way you came", "area_1_info"), ('D', "Go right towards the sewers", "sewer_area_1_info")]],
+    "cell_area_1_info": ["The Abandoned Cell block", "You head to the left, towards what appears to be an old cell block.\nThe corridor is narrow, so you can only go forward or back.", [('W', "Go forward, further down the corridor", "cell_area_2_info"), ('A', "Go left into a wall", None), ('S', "Go back the way you came", "area_2_info"), ('D', "Go right into a wall", None)]],
+    "cell_area_2_info": ["The Skeleton's Cell", "Further down the cell block you find a skeleton. It appears to have a deck of cards...\nThe corridor is narrow, so you can only go forward or back.", [('W', "Talk to the skeleton", "cell_area_3_info"),  ('A', "Go left into a wall", None), ('S', "Go back the way you came", "cell_area_1_info"), ('D', "Go right into a wall", None)]],
+    "cell_area_3_info": ["The Skeleton", "Hello traveller, would you care for a game of blackjack?\nI can make it worth your while...", [('E', "Play a game of blackjack", blackjack), ('Q', "Learn the rules of blackjack", blackjack_rules), ('W', "Walk past the skeleton", cell_area_4_a_or_b), ('A', "Go left into a wall", None), ('S', "Go back the way you came", "cell_area_2_info"), ('D', "Go right into a wall", None)]],
+    "cell_area_4a_info": ["A Suspicious Room", "You find yourself in a large open room.\nThere seems to be a suspicious lever in the middle.\nTo the left locked door, perhaps the lever opens is?.\nTo the right is a locked door, perhaps the lever opens it?", [('W', "Walk up to the lever", lever), ('S', "Go back the way you came", "cell_area_3_info"), ('A', "Go left towards a locked door", None), ('D', "Go right towards a locked door", None)]],
     "slime_fight_info": ["Slime Battle!", "Oh no! This slime is going to kill you! Good thing you brought that knife...", [('E', "Stab the slime", slime_stab), ('Q', "Block the slime's incoming attack", slime_block)]],
-    "cell_area_4b_info": ["A Suspicious Room", "The lever cannot be moved anymore.\nThe doors on the left and the right are open!\nThrough the left door is a fishing pond.\nThrough the right door is a merchant.", [('W', "Go forward", None), ('A', "Go left", "fishing_area_1_info"), ('S', "Go Back", "cell_area_3_info"), ('D', "Go right", "merchant_area_1_info")]],
+    "cell_area_4b_info": ["A Suspicious Room", "The lever cannot be moved anymore.\nThe doors on the left and the right are open!\nThrough the left door is a fishing pond.\nThrough the right door is a merchant.", [('W', "Go forward into a wall", None), ('A', "Go left to the pond", "fishing_area_1_info"), ('S', "Go Back the way you came", "cell_area_3_info"), ('D', "Go right to the merchant", "merchant_area_1_info")]],
     "merchant_area_1_info": ["The Merchant", "Hello traveller! I am a humble merchant.\nBut the last group that came by bought out all my stock except for 2 item!\nAll I can sell you is a strange key and a fishing rod\nIf you're in need of extra gold, I will buy fish from you (100 gold per fish).", [('Q', "Buy the key (1,000 gold)", buy_key), ('E', "Buy the fishing rod (100 gold)", buy_fishing_rod), ('W', "Sell fish", sell_fish), ('S', "Exit the shop", "cell_area_4b_info")]],
-    "fishing_area_1_info": ["The Fishing Pond", "There is a small pond in which you could fish.\nBut you are in a dungeon... so dont expect too many fish.", [('Q', "Go fishing ", fishing_game), ('S', "Go back", "cell_area_4b_info")]]
+    "fishing_area_1_info": ["The Fishing Pond", "There is a small pond in which you could fish.\nBut you are in a dungeon... so dont expect too many fish.", [('Q', "Go fishing ", lambda: fishing_game("fish")), ('S', "Go back the way you came", "cell_area_4b_info")]],
+    "sewer_area_1_info": ["The Sludgy Sewers", "The sewer is rather smelly and slimy, currently you can only move forward or back.", [('W', "Go deeper into the sewer", "sewer_area_2_info"), ('A', "Go left into a wall", None), ('S', "Go back the way you came", "area_2_info"), ('D', "Go right into a wall", None)]],
+    "sewer_area_2_info": ["The Toxic pond", "You reach a large (and probably toxic) pond.\nYou see something glint at the bottom of the pond, possibly a key?.", [('Q', "Go fishing", lambda: fishing_game("key")), ('S', "Go back the way you came", "sewer_area_1_info")]]
 }
-
 
 def explore_area(area_info):
     name, description, options = area_info
