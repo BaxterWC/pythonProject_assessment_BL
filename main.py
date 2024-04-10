@@ -1,10 +1,12 @@
 import random
+import os
 slime_health = 50
 player_health = 50
 player_gold = 0
 bet_amount = 0
 slime_fight = 0
 inventory = []
+returner = 0
 
 
 def blackjack():
@@ -352,7 +354,7 @@ def buy_fishing_rod():
 def sell_fish():
     if "fish" in inventory:
         num_fish = 0
-        print(f"You have {inventory.count("fish")} fish.")
+        print("You have", inventory.count("fish"), "fish")
         while True:
             try:
                 num_fish = int(input("How many fish would you like to sell?: "))
@@ -409,11 +411,19 @@ def key_check():
     else:
         print("The door is locked, seems like you need two keys to open it!")
 
+def exit():
+    global inventory
+    inventory = []
+    global player_gold
+    player_gold = 0
+    os.system('cls')
+    explore_area(areas["intro_info"])
+
 areas = {
-    "intro_info": ["The Dungeon", "How to play:\nUse W,A,S,D to move around\nUse E and Q to interact with the world when prompted", [('W', "Start the adventure", "area_1_info")]],
-    "area_1_info": ["The Dungeon's Entrance", "The dungeon is dark and gloomy, you look around but can't see much. But you can see something shining in the distance.\nYou can only move forward, for fear of the unknown all around you.", [('W', "Go forward towards the glistening", knife_pickup), ('A', "Go left into the darkness", None), ('S', "Go back into the darkness", None), ('D', "Go right into the darkness", None)]],
-    "area_2_info": ["The Murky Crossroads", "You approach a 3-way split in the corridor.\nStraight ahead is a large set of double doors with 2 keyholes.\nTo the left is what appears to be an abandoned cell block.\nTo the right is a sewer system.", [('W', "Go straight towards the door", key_check), ('A', "Go left towards the cells", "cell_area_1_info"), ('S', "Go back the way you came", "area_1_info"), ('D', "Go right towards the sewers", "sewer_area_1_info")]],
-    "cell_area_1_info": ["The Abandoned Cell block", "You head to the left, towards what appears to be an old cell block.\nThe corridor is narrow, so you can only go forward or back.", [('W', "Go forward, further down the corridor", "cell_area_2_info"), ('A', "Go left into a wall", None), ('S', "Go back the way you came", "area_2_info"), ('D', "Go right into a wall", None)]],
+    "intro_info": ["The Dungeon", "How to play:\nUse W,A,S,D to move around\nUse E and Q to interact with the world when prompted.\nPress Z at any time to exit.", [('W', "Start the adventure", "area_1_info"), ('Z', "Exit game", exit)]],
+    "area_1_info": ["The Dungeon's Entrance", "The dungeon is dark and gloomy, you look around but can't see much. But you can see something shining in the distance.\nYou can only move forward, for fear of the unknown all around you.", [('W', "Go forward towards the glistening", knife_pickup), ('A', "Go left into the darkness", None), ('S', "Go back into the darkness", None), ('D', "Go right into the darkness", None), ('Z', "Exit game", exit)]],
+    "area_2_info": ["The Murky Crossroads", "You approach a 3-way split in the corridor.\nStraight ahead is a large set of double doors with 2 keyholes.\nTo the left is what appears to be an abandoned cell block.\nTo the right is a sewer system.", [('W', "Go straight towards the door", key_check), ('A', "Go left towards the cells", "cell_area_1_info"), ('S', "Go back the way you came", "area_1_info"), ('D', "Go right towards the sewers", "sewer_area_1_info"), ('Z', "Exit game", exit)]],
+    "cell_area_1_info": ["The Abandoned Cell block", "You head to the left, towards what appears to be an old cell block.\nThe corridor is narrow, so you can only go forward or back.", [('W', "Go forward, further down the corridor", "cell_area_2_info"), ('A', "Go left into a wall", None), ('S', "Go back the way you came", "area_2_info"), ('D', "Go right into a wall", None), ('Z', "Exit game", exit)]],
     "cell_area_2_info": ["The Skeleton's Cell", "Further down the cell block you find a skeleton. It appears to have a deck of cards...\nThe corridor is narrow, so you can only go forward or back.", [('W', "Talk to the skeleton", "cell_area_3_info"),  ('A', "Go left into a wall", None), ('S', "Go back the way you came", "cell_area_1_info"), ('D', "Go right into a wall", None)]],
     "cell_area_3_info": ["The Skeleton", "Hello traveller, would you care for a game of blackjack?\nI can make it worth your while...", [('E', "Play a game of blackjack", blackjack), ('Q', "Learn the rules of blackjack", blackjack_rules), ('W', "Walk past the skeleton", cell_area_4_a_or_b), ('A', "Go left into a wall", None), ('S', "Go back the way you came", "cell_area_2_info"), ('D', "Go right into a wall", None)]],
     "cell_area_4a_info": ["A Suspicious Room", "You find yourself in a large open room.\nThere seems to be a suspicious lever in the middle.\nTo the left locked door, perhaps the lever opens is?.\nTo the right is a locked door, perhaps the lever opens it?", [('W', "Walk up to the lever", lever), ('S', "Go back the way you came", "cell_area_3_info"), ('A', "Go left towards a locked door", None), ('D', "Go right towards a locked door", None)]],
@@ -441,6 +451,7 @@ def explore_area(area_info):
         user_input = input(":").upper()
         for key, _, next_area in options:
             if user_input == key:
+
                 if next_area:
                     if next_area in areas:
                         explore_area(areas[next_area])
