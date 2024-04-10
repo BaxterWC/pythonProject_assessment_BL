@@ -383,6 +383,7 @@ def fishing_game(item):
         print("\nAvailable options:\nQ: Go fishing\nS: Leave the pond\nZ: Exit game")
 
 
+
 #Checks if the player has both keys required to beat the game.
 def key_check():
     if "key_2" and "key" in inventory:
