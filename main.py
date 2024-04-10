@@ -394,11 +394,9 @@ def key_check():
 
 #Function for exiting the game, it resets all the global variables and clears the screen
 def exit_game():
-    global bet_amount
     global player_gold
     global inventory
     global levers_pulled
-    bet_amount = 0
     levers_pulled = 0
     player_gold = 0
     inventory = []
