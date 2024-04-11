@@ -8,13 +8,12 @@ player_gold = 0
 bet_amount = 0
 inventory = []
 
-#Function to be called when blackjack is played, a fucntion is a section of code that can be called at any time when needed.
+#Function to be called when blackjack is played, a function is a section of code that can be called at any time when needed.
 def blackjack():
-    dealer_ace_breaking = 0
     os.system('cls')
     global bet_amount
     global player_gold
-    #If statement is used to check to see if the player has gold to bet with, if they don't have gold they get sent to the next area instead. An if statement checks whether or not the player fufils a certain condition acts accordingly.
+    #If statement is used to check to see if the player has gold to bet with, if they don't have gold they get sent to the next area instead. An if statement checks whether  the player fulfils a certain or not and condition acts accordingly.
     if player_gold == 0:
         print("\nYou dont have any gold, I'll be waiting here when you get some.")
         print("*The skeleton pushes you into the next room*")
@@ -30,20 +29,21 @@ def blackjack():
         #Defining the hands of both players and the deck of cards.
         dealer_hand = []
         hand = []
+        #A list is used to store the values for the cards in a more efficient way than listing every single possible card. A list is a collection of items stored in a single variable for ease of access.
         values = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
         suits = ["Hearts", "Diamonds", "Spades", "Clubs"]
         #This combines both lists to form 1 list of correctly formatted cards.
         deck = [[v, "of", s] for s in suits for v in values]
         random.shuffle(deck)
 
-        #Error detection for player betting value.
+        #Error detection for player betting value. A while loop is a section of code that repeats indefinitely until a certain requirement is fulfilled. This loop repeats until it is broken so that the player can re-enter their response if it is invalid.
         while True:
             try:
                 bet_amount = int(input(f"You have {player_gold} gold, place your bet: "))
                 if bet_amount <= 0:
                     print("Please enter a bet greater than zero.")
                 elif bet_amount > player_gold:
-                    print("You don't have enough coins to place that bet.")
+                    print("You don't have enough gold to place that bet.")
                 else:
                     player_gold -= bet_amount
                     break
@@ -61,14 +61,14 @@ def blackjack():
         for i in range(1, 3):
             deck.remove(deck[0])
 
-        #This is only here for if the player is dealt 2 aces on start, it sets the total to 12 and makes one of the ace's value equal to 1.
+        #This is only here for if the player is dealt 2 aces on start, it sets the total to 12 and makes one of the ace's value equal to 1. This is to prevent the code from freaking out when the starting value is > 21
         if total > 21:
             print("Your total is: 12")
             hand[1][0] = "1"
             total = 12
 
         #Showing the player the skeleton's first card, appending it to the 'dealer_hand' list and removing it from the 'deck' list.
-        print("The skeleton  has a", " ".join(map(str, deck[0])), "and a face down card")
+        print("The skeleton as a", " ".join(map(str, deck[0])), "and a face down card")
         dealer_hand.append(deck[0])
         dealer_total = blackjack_value(dealer_hand[0])
         print("The skeleton's total is:", dealer_total, "\n")
@@ -78,8 +78,8 @@ def blackjack():
             print("Your total is 21, you win!")
             blackjack_win()
 
-        #This loops until one of the players busts or wins, and is where the hitting and standing happens.
-        while total < 21 and dealer_total < 21 and dealer_ace_breaking < 1:
+        #This loops until the player busts or wins, and is where the hitting and standing happens.
+        while total < 21 and dealer_total < 21:
             print("Press 1 to hit or 2 to stand.")
             try:
                 user_input = int(input(":"))
@@ -90,12 +90,12 @@ def blackjack():
                     total += blackjack_value(hand[-1])
                     if total <= 21:
                         print("Your total is:", total)
-                    #This code sucked to make, if the player goes over 21 it checks how many aces are in the player's hand then converts them into a 1 and reduces the total by 10.
+                    #If the player goes over 21 it checks how many aces are in the player's hand then converts them into a 1 and reduces the total by 10.
                     if total > 21:
                         #Checking how many aces are in the players hand and need to be changed into a 1.
                         aces_to_convert = sum(1 for card in hand if "Ace" in card and blackjack_value(card) == 11)
                         while total > 21 and aces_to_convert > 0:
-                            #Loops for however many cards the player has.
+                            #Loops for however many cards the player has. A for loop is a loop that repeats a block of code a set amount of times. In this case, the loop runs once for each card in the player's hand.
                             for i in range(len(hand)):
                                 #Checks if a given card is an ace and hasn't already been turned into a 1 to avoid counting the same ace twice.
                                 if hand[i][0] == "Ace" and blackjack_value(hand[i]) == 11:
@@ -121,66 +121,69 @@ def blackjack():
                         blackjack_win()
 
                 elif user_input == 2:
-                    while dealer_total < 17:
-                        if len(dealer_hand) > 1:
-                            dealer_hand.append(deck[0])
-                            print("The skeleton draws a", " ".join(map(str, deck[0])))
-                            deck.remove(deck[0])
-                            dealer_total += blackjack_value(dealer_hand[-1])
-                            if dealer_total <= 21:
-                                print("The skeleton's total is:", dealer_total, "\n")
+                    break
 
-                        else:
-                            print("The skeleton flips his card to reveal a", " ".join(map(str, deck[0])))
-                            dealer_hand.append(deck[0])
-                            dealer_total += blackjack_value(dealer_hand[1])
-                            print("The skeleton's total is:", dealer_total, "\n")
-                            deck.remove(deck[0])
-
-                    if 21 >= dealer_total > total:
-                        print("The skeleton must stand when their total is greater than 16")
-                        print("The skeleton's hand is closer to 21, they win!")
-                        print("\nAhaha! You lose!")
-                        print("I'm keeping this gold!")
-                        print(f"Current gold amount: {player_gold}")
-                        print("Want to go again?")
-                        blackjack_want_to_play()
-
-                    elif dealer_total > 21:
-                        #Same as player ace conversion code but for the dealer's hand instead.
-                        aces_to_convert = sum(1 for card in dealer_hand if "Ace" in card and blackjack_value(card) == 11)
-                        while dealer_total > 21 and aces_to_convert > 0:
-                            for i in range(len(dealer_hand)):
-                                if dealer_hand[i][0] == "Ace" and blackjack_value(dealer_hand[i]) == 11:
-                                    dealer_hand[i][0] = "1"
-                                    dealer_total -= 10
-                                    aces_to_convert -= 1
-                                    dealer_ace_breaking = 1
-                                    break
-
-                        print("The skeleton's total is:", dealer_total)
-
-                        if dealer_total > 21:
-                            print("The skeleton busts, you win!")
-                            blackjack_win()
-
-                    elif 21 >= dealer_total == total:
-                        print("It's a draw!")
-                        print("Your gold was returned")
-                        player_gold += bet_amount
-                        print(f"Current gold amount: {player_gold}")
-                        print("\nWould you like to play again?")
-                        blackjack_want_to_play()
-
-                    else:
-                        print("The skeleton must stand when their total is greater than 16")
-                        print("Your hand is closer to 21, you win!")
-                        blackjack_win()
                 else:
-                    print("Please enter either 1 or 2")
+                    print("Please enter either 1 or 2.")
 
             except ValueError:
-                print("Please enter a valid number")
+                print("Please enter a valid number.")
+
+        while dealer_total < 17:
+            if len(dealer_hand) == 1:
+                print("The skeleton flips his card to reveal a", " ".join(map(str, deck[0])))
+                dealer_hand.append(deck[0])
+                dealer_total += blackjack_value(dealer_hand[-1])
+                print("The skeleton's total is:", dealer_total, "\n")
+                deck.remove(deck[0])
+
+            elif dealer_total < 17:
+                dealer_hand.append(deck[0])
+                print("The skeleton draws a", " ".join(map(str, deck[0])))
+                deck.remove(deck[0])
+                dealer_total += blackjack_value(dealer_hand[-1])
+                if dealer_total <= 21:
+                    print("The skeleton's total is:", dealer_total, "\n")
+
+                if dealer_total > 21:
+                    #Same as player ace conversion code but for the dealer's hand instead.
+                    aces_to_convert = sum(1 for card in dealer_hand if card[0] == "Ace" and blackjack_value(card) == 11)
+                    while dealer_total > 21 and aces_to_convert > 0:
+                        for i in range(len(dealer_hand)):
+                            if dealer_hand[i][0] == "Ace" and blackjack_value(dealer_hand[i]) == 11:
+                                dealer_hand[i][0] = "1"
+                                dealer_total -= 10
+                                aces_to_convert -= 1
+                                print("converted")
+                                break
+
+                    print("The skeleton's total is:", dealer_total)
+
+        if dealer_total > 21:
+            print("The skeleton busts, you win!")
+            blackjack_win()
+
+        elif 21 >= dealer_total > total and dealer_total > 16:
+            print("The skeleton must stand when their total is greater than 16")
+            print("The skeleton's hand is closer to 21, they win!")
+            print("\nAhaha! You lose!")
+            print("I'm keeping this gold!")
+            print(f"Current gold amount: {player_gold}")
+            print("Want to go again?")
+            blackjack_want_to_play()
+
+        elif 21 >= dealer_total == total and dealer_total > 16:
+            print("It's a draw!")
+            print("Your gold was returned")
+            player_gold += bet_amount
+            print(f"Current gold amount: {player_gold}")
+            print("\nWould you like to play again?")
+            blackjack_want_to_play()
+
+        elif 21 >= total > dealer_total > 16:
+            print("The skeleton must stand when their total is greater than 16")
+            print("Your hand is closer to 21, you win!")
+            blackjack_win()
 
 
 #Function to calculate the value of a card. Because I use index position for values, face cards and aces need to be set as 10 and 11 respectively.
@@ -250,7 +253,7 @@ def lever():
 
 
 def blackjack_rules():
-    os.system("cls")
+    os.system('cls')
     print("The aim of the game is to get a score of 21 or as close to it as possible without going over."
           "\nYou can bet as much money as you like, and if you win, you get twice what you bet back!"
           "\nFace cards (Jack, Queen, King) are worth 10 points."
@@ -304,7 +307,7 @@ def buy_key():
 #Buying a fishing rod from the merchant
 def buy_fishing_rod():
     global player_gold
-    # Checks to see if the player already has a fishing rod, if they do, they get an 'input error' for trying to re-0buy the key because the option is hidden.
+    # Checks to see if the player already has a fishing rod, if they do, they get an 'input error' for trying to re-buy the key because the option is hidden.
     if "fishing_rod" not in inventory:
         if player_gold >= 100:
             inventory.append("fishing_rod")
@@ -364,13 +367,13 @@ def fishing_game(item):
     if "fishing_rod" in inventory:
         os.system('cls')
         print("\nYou cast your line into the pond...")
-        time.sleep(1)
+        time.sleep(random.randint(1, 5))
         #This stops the player from fishing up multiple keys
         if "key" in inventory or item == "fish":
             catch = random.choice(["fish", "boot", "seaweed", "old tin can"])
         else:
             catch = random.choice([item, "boot", "seaweed", "old tin can"])
-        #Alerts the player that they have caught a desireable item.
+        #Alerts the player that they have caught a desirable item.
         if catch == item:
             print(f"Congratulations! You caught a {item}!")
             inventory.append(item)
@@ -416,13 +419,13 @@ def exit_game():
     explore_area(areas["intro_info"])
 
 
-#Dictionary that defines all of the games areas. It contains the area's name, description, and actions.
+#Dictionary that defines all of the of the games areas. It contains the area's name, description, and actions. A dictionary is used to store key-value pairs, where each key is associated with a corresponding value. In this context, the dictionary stores the names of the areas and pairs them with a list containing a description and user options.
 areas = {
     "intro_info": ["The Dungeon", "How to play:\nUse W,A,S,D to move around\nUse E and Q to interact with the world when prompted.\nPress Z at any time to exit.", [('W', "Start the adventure", "area_1_info"), ('Z', "Exit game", exit_game)]],
     "area_1_info": ["The Dungeon's Entrance", "The dungeon is dark and gloomy, you look around but can't see much. But you can see something in the distance.\nYou can only move forward, for fear of the unknown all around you.", [('W', "Go forwards", "area_2_info"), ('A', "Go left into the darkness", None), ('S', "Go back into the darkness", None), ('D', "Go right into the darkness", None), ('Z', "Exit game", exit_game)]],
     "area_2_info": ["The Murky Crossroads", "You approach a 3-way split in the corridor.\nStraight ahead is a large set of double doors with 2 keyholes.\nTo the left is what appears to be an abandoned cell block.\nTo the right is a sewer system.", [('W', "Go straight towards the door", key_check), ('A', "Go left towards the cells", "cell_area_1_info"), ('S', "Go back towards the dungeon's entrance", "area_1_info"), ('D', "Go right towards the sewers", "sewer_area_1_info"), ('Z', "Exit game", exit_game)]],
     "cell_area_1_info": ["The Abandoned Cell block", "You head to the left, towards what appears to be an old cell block.\nThe corridor is narrow, so you can only go forward or back.", [('W', "Go forward, further down the corridor", "cell_area_2_info"), ('A', "Go left into a wall", None), ('S', "Go back to the crossroads", "area_2_info"), ('D', "Go right into a wall", None), ('Z', "Exit game", exit_game)]],
-    "cell_area_2_info": ["The Skeleton's Cell", "A skeleton sits infront of you, it appears to have a deck of cards...\nThe corridor is narrow, so you can only go forward or back.", [('W', "Talk to the skeleton", "cell_area_3_info"),  ('A', "Go left into a wall", None), ('S', "Go back to the entrance of the cell block", "cell_area_1_info"), ('D', "Go right into a wall", None), ('Z', "Exit game", exit_game)]],
+    "cell_area_2_info": ["The Skeleton's Cell", "A skeleton sits in front of you, it appears to have a deck of cards...\nThe corridor is narrow, so you can only go forward or back.", [('W', "Talk to the skeleton", "cell_area_3_info"),  ('A', "Go left into a wall", None), ('S', "Go back to the entrance of the cell block", "cell_area_1_info"), ('D', "Go right into a wall", None), ('Z', "Exit game", exit_game)]],
     "cell_area_3_info": ["The Skeleton", "Hello traveller, would you care for a game of blackjack?\nI can make it worth your while...", [('E', "Play a game of blackjack", blackjack), ('Q', "Learn the rules of blackjack", blackjack_rules), ('W', "Walk past the skeleton", cell_area_4_a_or_b), ('A', "Go left into a wall", None), ('S', "Stop talking to the skeleton", "cell_area_2_info"), ('D', "Go right into a wall", None), ('Z', "Exit game", exit_game)]],
     "cell_area_4a_info": ["A Suspicious Room", "You find yourself in a large open room.\nThere seems to be a suspicious lever in the middle.\nTo the left locked door, perhaps the lever opens is?.\nTo the right is a locked door, perhaps the lever opens it?", [('W', "Walk up to the lever", lever), ('S', "Go back to the skeleton's cell", "cell_area_3_info"), ('A', "Go left towards a locked door", None), ('D', "Go right towards a locked door", None), ('Z', "Exit game", exit_game)]],
     "cell_area_4b_info": ["A Suspicious Room", "The lever cannot be moved anymore.\nThe doors on the left and the right are open!\nThrough the left door is a fishing pond.\nThrough the right door is a merchant.", [('W', "Go forward into a wall", None), ('A', "Go left to the pond", "fishing_area_1_info"), ('S', "Go back to the skeleton's cell", "cell_area_3_info"), ('D', "Go right to the merchant", "merchant_area_1_info"), ('Z', "Exit game", exit_game)]],
@@ -432,25 +435,25 @@ areas = {
     "sewer_area_2_info": ["The Toxic pond", "You reach a large (and probably toxic) pond.\nYou see something glint at the bottom of the pond, possibly a key?.", [('Q', "Go fishing", lambda: fishing_game("key")), ('S', "Leave the pond", "sewer_area_1_info"), ('Z', "Exit game", exit_game)]] #Lambda is used here to call the specific fishing_game(key) function so that the player will fish for key instead of a fish
 }
 
-#This is the area general function that all of the areas from the previous dictionary get subbed into.
+#This is the area general function that areas from the previous dictionary get subbed into.
 def explore_area(area_info):
     name, description, options = area_info
     name_length = len(name)
     padding = (30 - name_length) // 2
     middle_length = name_length + 2 * padding
-    #This is to make the title of the area a symmetrical box of "--" around the name for asthetic purposes.
+    #This is to make the title of the area a symmetrical box of "--" around the name for aesthetic purposes.
     print("\n" + "-" * middle_length)
     print(f"{'-' * padding}{name}{'-' * padding}")
     print("-" * middle_length)
     print("\n" + description)
     print("\nAvailable options:")
     #This for loop prints the player's available options.
-    for key, text, _ in options:
+    for key, text, i in options:
         print(f"{key}: {text}")
     #This first checks what the player's input is and whether it is a valid input. Then checks if it is a function or an area name.
     while True:
         user_input = input(":").upper()
-        for key, _, next_area in options:
+        for key, i, next_area in options:
             if user_input == key:
                 if next_area:
                     if next_area in areas:
