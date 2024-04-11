@@ -8,15 +8,17 @@ player_gold = 0
 bet_amount = 0
 inventory = []
 
-
 #Function to be called when blackjack is played, a fucntion is a section of code that can be called at any time when needed.
 def blackjack():
+    dealer_ace_breaking = 0
+    os.system('cls')
     global bet_amount
     global player_gold
     #If statement is used to check to see if the player has gold to bet with, if they don't have gold they get sent to the next area instead. An if statement checks whether or not the player fufils a certain condition acts accordingly.
     if player_gold == 0:
         print("\nYou dont have any gold, I'll be waiting here when you get some.")
         print("*The skeleton pushes you into the next room*")
+        time.sleep(2)
         cell_area_4_a_or_b()
     else:
         print("")
@@ -77,7 +79,7 @@ def blackjack():
             blackjack_win()
 
         #This loops until one of the players busts or wins, and is where the hitting and standing happens.
-        while total < 21 and dealer_total < 21:
+        while total < 21 and dealer_total < 21 and dealer_ace_breaking < 1:
             print("Press 1 to hit or 2 to stand.")
             try:
                 user_input = int(input(":"))
@@ -125,7 +127,8 @@ def blackjack():
                             print("The skeleton draws a", " ".join(map(str, deck[0])))
                             deck.remove(deck[0])
                             dealer_total += blackjack_value(dealer_hand[-1])
-                            print("The skeleton's total is:", dealer_total, "\n")
+                            if dealer_total <= 21:
+                                print("The skeleton's total is:", dealer_total, "\n")
 
                         else:
                             print("The skeleton flips his card to reveal a", " ".join(map(str, deck[0])))
@@ -152,6 +155,7 @@ def blackjack():
                                     dealer_hand[i][0] = "1"
                                     dealer_total -= 10
                                     aces_to_convert -= 1
+                                    dealer_ace_breaking = 1
                                     break
 
                         print("The skeleton's total is:", dealer_total)
@@ -200,6 +204,7 @@ def blackjack_want_to_play():
             print("Oh well.")
             print("I suppose you best get moving then.")
             print("*The skeleton pushes you into the next room.*")
+            time.sleep(2)
             cell_area_4_a_or_b()
         else:
             print("Please enter yes or no.")
@@ -245,6 +250,7 @@ def lever():
 
 
 def blackjack_rules():
+    os.system("cls")
     print("The aim of the game is to get a score of 21 or as close to it as possible without going over."
           "\nYou can bet as much money as you like, and if you win, you get twice what you bet back!"
           "\nFace cards (Jack, Queen, King) are worth 10 points."
@@ -306,7 +312,7 @@ def buy_fishing_rod():
             print("\nYou bought the fishing rod! Is there anything else you would like to do?")
             print(f"Current gold: {player_gold}")
             #Changing the merchant's shop based on what items have been bought so that already purchased items are hidden and can't be re-bought.
-            if "key_1" not in inventory:
+            if "key_2" not in inventory:
                 areas["merchant_area_1_info"][2] = [('Q', "Buy the key (1000 gold)", buy_key), ('W', "Sell fish", sell_fish), ('S', "Exit the shop", "cell_area_4b_info"), ('Z', "Exit game", exit_game)]
                 print("\nAvailable options:\nQ: Buy the key (1000 gold)\nW: Sell fish\nS: Exit the shop\nZ: Exit game")
             else:
