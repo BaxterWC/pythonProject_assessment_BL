@@ -2,6 +2,7 @@
 import random
 import os
 import time
+import msvcrt
 
 levers_pulled = 0
 player_gold = 0
@@ -18,8 +19,10 @@ def blackjack():
     if player_gold == 0:
         print("\nYou dont have any gold, I'll be waiting here when you get some.")
         print("*The skeleton pushes you into the next room*")
-        # time.sleep(n) pauses the game for n seconds
+        # time.sleep(n) pauses the game for n seconds, this is used to give the player time to read important text before the screen clears
         time.sleep(3)
+        while msvcrt.kbhit():
+            input()
         cell_area_4_a_or_b()
     else:
         print("")
@@ -36,14 +39,17 @@ def blackjack():
         suits = ["Hearts", "Diamonds", "Spades", "Clubs"]
         #This combines both lists to form 1 list of correctly formatted cards.
         deck = [[v, "of", s] for s in suits for v in values]
+        # Random.shuffle is used to shuffle the deck so that the cards dealt are different each time.
         random.shuffle(deck)
 
         # Error detection for player betting value. A while loop is a section of code that repeats indefinitely until a certain requirement is fulfilled. This loop repeats until it is broken so that the player can re-enter their response if it is invalid.
         while True:
             try:
-                bet_amount = int(input(f"You have {player_gold} gold, place your bet: "))
-                if bet_amount <= 0:
+                bet_amount = int(input(f"You have {player_gold} gold, place your bet or press 0 to exit the game\n: "))
+                if bet_amount < 0:
                     print("Please enter a bet greater than zero.")
+                elif bet_amount == 0:
+                    exit_game()
                 elif bet_amount > player_gold:
                     print("You don't have enough gold to place that bet.")
                 else:
@@ -54,12 +60,14 @@ def blackjack():
 
         # Dealing the player their initial 2 cards, appending them to the 'hand' list and removing them from the 'deck' list.
         print("\nYou were dealt a", " ".join(map(str, deck[0])), "and a", " ".join(map(str, deck[1])))
+        # hand.append(deck[0]) takes the first card in the 'deck' list and adds it to the 'hand list'. This is used for a distinction in the player hand and deck of cards.
         hand.append(deck[0])
         hand.append(deck[1])
         total = blackjack_value(hand[0]) + blackjack_value(hand[1])
         if total <= 21:
             print("Your total is:", total, "\n")
 
+        # Deck.remove(deck[0]) removes the first card from the deck. This loops twice to remove both the cards that were appended to the players hand to avoid duplication of cards.
         for i in range(1, 3):
             deck.remove(deck[0])
 
@@ -82,7 +90,7 @@ def blackjack():
 
         # This loops until the player busts or wins, and is where the hitting and standing happens.
         while total < 21 and dealer_total < 21:
-            print("Press 1 to hit or 2 to stand.")
+            print("Press 1 to hit, 2 to stand or 0 to exit the game.")
             try:
                 user_input = int(input(":"))
                 if user_input == 1:
@@ -101,7 +109,7 @@ def blackjack():
                             for i in range(len(hand)):
                                 # Checks if a given card is an ace and hasn't already been turned into a 1 to avoid counting the same ace twice.
                                 if hand[i][0] == "Ace" and blackjack_value(hand[i]) == 11:
-                                    # Converts ace into a 1 to avoid repeats
+                                    # Converts ace into a 1 to avoid repeats.
                                     hand[i][0] = "1"
                                     # Minus 10 from total, converting 11 to 1 is a loss of 10 points.
                                     total -= 10
@@ -115,7 +123,6 @@ def blackjack():
                             print("\nAhaha! You lose!")
                             print("I'm keeping this gold!")
                             print(f"Current gold amount: {player_gold}")
-                            print("Want to go again?")
                             blackjack_want_to_play()
 
                     if total == 21:
@@ -124,6 +131,9 @@ def blackjack():
 
                 elif user_input == 2:
                     break
+
+                elif user_input == 0:
+                    exit_game()
 
                 else:
                     print("Please enter either 1 or 2.")
@@ -170,7 +180,6 @@ def blackjack():
             print("\nAhaha! You lose!")
             print("I'm keeping this gold!")
             print(f"Current gold amount: {player_gold}")
-            print("Want to go again?")
             blackjack_want_to_play()
 
         elif 21 >= dealer_total == total and dealer_total > 16:
@@ -178,7 +187,6 @@ def blackjack():
             print("Your gold was returned")
             player_gold += bet_amount
             print(f"Current gold amount: {player_gold}")
-            print("\nWould you like to play again?")
             blackjack_want_to_play()
 
         elif 21 >= total > dealer_total > 16:
@@ -200,16 +208,20 @@ def blackjack_value(values):
 # Asks the player if the want to go again, made it a function to save on repeat code.
 def blackjack_want_to_play():
     while True:
-        print("I'm a skeleton so a yes or no answer is all I can accept.")
+        print("\nWould you like to play again?\nAvailable options:\nY: Play again\nN: Don't play again\n0: Exit the game")
         user_input = input(":").upper()
-        if user_input == "YES":
+        if user_input == "Y":
             blackjack()
-        elif user_input == "NO":
-            print("Oh well.")
+        elif user_input == "N":
+            print("\nOh well.")
             print("I suppose you best get moving then.")
             print("*The skeleton pushes you into the next room.*")
             time.sleep(3)
+            while msvcrt.kbhit():
+                input()
             cell_area_4_a_or_b()
+        elif user_input == "0":
+            exit_game()
         else:
             print("Please enter yes or no.")
 
@@ -221,7 +233,6 @@ def blackjack_win():
     player_gold += bet_amount * 2
     print(f"You were given {bet_amount * 2} gold for winning!")
     print(f"Current gold amount: {player_gold}")
-    print("\nWould you like to play again?")
     blackjack_want_to_play()
 
 
@@ -232,14 +243,14 @@ def lever():
     global player_gold
     global levers_pulled
     levers_pulled = 1
-    print("The box seems to have a puzzle-based lock on it.\nIf you can solve the puzzle, the box might open!")
+    print("The box seems to have a puzzle-based lock on it.")
     # List of possible words for the puzzle.
     puzzle_words = ['apple', 'chair', 'bread', 'dream', 'house', 'music', 'river', 'table', 'zebra']
     puzzle_word = random.choice(puzzle_words)
     letters = list(puzzle_word)
     random.shuffle(letters)
     scrambled_word = ''.join(letters)
-    print(f"The box has a scrambled word on it: {scrambled_word}\nIf you can unscramble the word, the box might open!")
+    print(f"The box has a scrambled word on it: {scrambled_word}\nIf you can unscramble the word, the box might open!\nInput your answer to open the box, or enter 0 to exit the game.")
     # Loops until the player gets the puzzle correct.
     while True:
         user_input = input(":").lower()
@@ -248,7 +259,11 @@ def lever():
             player_gold += 200
             print(f"Current gold amount: {player_gold}")
             time.sleep(3)
+            while msvcrt.kbhit():
+                input()
             cell_area_4_a_or_b()
+        elif user_input == "0":
+            exit_game()
         else:
             print("Incorrect! Have another try.")
 
@@ -269,11 +284,13 @@ def blackjack_rules():
           "\nIf you and the dealer tie, your bet is returned.")
 
     while True:
-        print("\n\nHave you finished reading? (Enter Y when you have finished)")
+        print("\n\nAvailable options:\nE: Finish reading\n0: Exit the game")
         userinput = input(":").upper()
-        if userinput == "Y":
+        if userinput == "E":
             os.system('cls')
             explore_area(areas["cell_area_3_info"])
+        elif userinput == "0":
+            exit_game()
         else:
             print("Please enter Y")
 
@@ -366,7 +383,10 @@ def sell_fish():
         print(f"You sold {num_fish} fish and gained {num_fish * 100} gold.")
         print(f"Current gold: {player_gold}")
         print("Would you like to do anything else?")
-        print("\nAvailable options:\nQ: Buy the key (1000 gold)\nW: Sell more fish\nS: Exit the shop")
+        if "key" not in inventory:
+            print("\nAvailable options:\nQ: Buy the key (1000 gold)\nW: Sell more fish\nS: Exit the shop")
+        else:
+            print("\nAvailable options:\nW: Sell more fish\nS: Exit the shop")
     else:
         print("You don't have any fish to sell. Is there anything else you would like to do?")
 
@@ -377,6 +397,9 @@ def fishing_game(item):
         os.system('cls')
         print("\nYou cast your line into the pond...")
         time.sleep(random.randint(1, 5))
+        # mscrvt.kbhit catches any inputs buffered during the time.sleep and prints them later to avoid spammed valid inputs during time.sleep being accepted as valid
+        while msvcrt.kbhit():
+            input()
         # This stops the player from fishing up multiple keys
         if "key" in inventory or item == "fish":
             catch = random.choice(["fish", "boot", "seaweed", "old tin can"])
@@ -439,9 +462,9 @@ areas = {
     "cell_area_4a_info": ["A Suspicious Room", "You find yourself in a large open room.\nThere seems to be a suspicious lever in the middle.\nTo the left locked door, perhaps the lever opens is?.\nTo the right is a locked door, perhaps the lever opens it?", [('W', "Walk up to the lever", lever), ('S', "Go back to the skeleton's cell", "cell_area_3_info"), ('A', "Go left towards a locked door", None), ('D', "Go right towards a locked door", None), ('0', "Exit game", exit_game)]],
     "cell_area_4b_info": ["A Suspicious Room", "The lever cannot be moved anymore.\nThe doors on the left and the right are open!\nThrough the left door is a fishing pond.\nThrough the right door is a merchant.", [('W', "Go forward into a wall", None), ('A', "Go left to the pond", "fishing_area_1_info"), ('S', "Go back to the skeleton's cell", "cell_area_3_info"), ('D', "Go right to the merchant", "merchant_area_1_info"), ('0', "Exit game", exit_game)]],
     "merchant_area_1_info": ["The Merchant", "Hello traveller! I am a humble merchant.\nBut the last group that came by bought out all my stock except for 2 item!\nAll I can sell you is a strange key and a fishing rod\nIf you're in need of extra gold, I will buy fish from you (100 gold per fish).", [('Q', "Buy the key (1,000 gold)", buy_key), ('E', "Buy the fishing rod (100 gold)", buy_fishing_rod), ('W', "Sell fish", sell_fish), ('S', "Exit the shop", "cell_area_4b_info"), ('0', "Exit game", exit_game)]],
-    "fishing_area_1_info": ["The Fishing Pond", "There is a small pond in which you could fish.\nBut you are in a dungeon... so dont expect too many fish.", [('Q', "Go fishing ", lambda: fishing_game("fish")), ('S', "Go back to suspicious room", "cell_area_4b_info"), ('0', "Exit game", exit_game)]], #Lambda is used here to call the specific fishing_game(fish) function so that the player will fish for fish instead of a key
+    "fishing_area_1_info": ["The Fishing Pond", "There is a small pond in which you could fish.\nBut you are in a dungeon... so dont expect too many fish.", [('Q', "Go fishing ", lambda: fishing_game("fish")), ('S', "Go back to suspicious room", "cell_area_4b_info"), ('0', "Exit game", exit_game)]],  # Lambda is used here to call the specific fishing_game(fish) function so that the player will fish for fish instead of a key.
     "sewer_area_1_info": ["The Sludgy Sewers", "The sewer is rather smelly and slimy, currently you can only move forward or back.", [('W', "Go deeper into the sewer", "sewer_area_2_info"), ('A', "Go left into a wall", None), ('S', "Go back to the crossroads", "area_2_info"), ('D', "Go right into a wall", None), ('0', "Exit game", exit_game)]],
-    "sewer_area_2_info": ["The Toxic pond", "You reach a large (and probably toxic) pond.\nYou see something glint at the bottom of the pond, possibly a key?.", [('Q', "Go fishing", lambda: fishing_game("key")), ('S', "Leave the pond", "sewer_area_1_info"), ('0', "Exit game", exit_game)]] #Lambda is used here to call the specific fishing_game(key) function so that the player will fish for key instead of a fish
+    "sewer_area_2_info": ["The Toxic pond", "You reach a large (and probably toxic) pond.\nYou see something glint at the bottom of the pond, possibly a key?.", [('Q', "Go fishing", lambda: fishing_game("key")), ('S', "Leave the pond", "sewer_area_1_info"), ('0', "Exit game", exit_game)]]
 }
 
 
